@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔥 DevNewz: Hacker News Clone  
+A Hacker News-style feed and discussion platform with key features like velocity-based ranking, nested comments, karma system, and user profiles with anti-procrastination settings.
 
-## Getting Started
+---
 
-First, run the development server:
+## 🧱 Tech Stack
+- **Frontend**: Next.js
+- **Backend**: Next.js API Routes & Server Actions
+- **Authentication**: NextAuth.js
+- **Database**: PostgreSQL
+- **ORM**: Prisma
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features
+### 🗞️ Feed  
+- **`/news`** – Posts with high velocity (recent posts getting rapid upvotes)  
+- **`/newest`** – Chronologically sorted feed of newly submitted posts  
+- **`/threads`** – View a user’s comments in threaded (nested) format  
+- **`/past`** – Shows front-page content from previous days  
+- **`/comments`** – Recent comments across all posts  
+- **`/ask`** – Posts where users ask questions (title starts with `Ask HN:`)  
+- **`/show`** – Project showcases (title starts with `Show HN:`)  
+- **`/submit`** – Submit a new post to the platform  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🔐 Authentication  
+- **Login / Sign-up** with a username and password  
+- **Optional Email** for password recovery  
+- **User Profile**:  
+  - Username  
+  - Account creation time (e.g., "15 days ago")  
+  - Karma  
+  - About section  
+  - Email (optional)  
+  - **noProcrast** mode:  
+    - Set `maxVisit`: Maximum time allowed per session  
+    - Set `minAway`: Minimum time required between sessions  
+  - `delay`: Delay before comments become visible to others  
+  - Change password  
+  - View your:  
+    - Submissions  
+    - Upvoted posts/comments  
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### 💬 Comments  
+- Nested comments up to **5 levels deep**  
+- Delayed comment visibility (based on user profile `delay`)  
+- `/threads` page to see a user's full comment history in nested format  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🔼 Karma System  
+- Earn **+1 karma** per upvote on your posts/comments  
+- Lose karma when others **downvote** your content  
+- Downvoting becomes available only after reaching **500 karma**  
+- Users **cannot**:  
+  - Upvote their own content  
+  - Upvote the same post/comment more than once  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🌓 UX Details  
+- Posts you've read appear in **muted color** (`#828282`)  
+- Unread posts remain in **default black** (`#000000`)  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
