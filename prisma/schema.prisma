@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+  // output = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("NEONDB_POOL_URL")
+  directUrl = env("NEONDB_DIRECT_URL")
+}
+
+enum PostType {
+  GENERAL
+  ASK
+  SHOW
+}
+
+enum NoProcrastType {
+  no
+  yes
+}
+
+enum UserRole {
+  GUEST
+  USER
+  ADMIN
+}
+
+model User {
+  id             String   @id @default(uuid())
+  username       String   @unique
+  email          String?  @unique
+  hashedPassword String
+  role           UserRole @default(USER)
+
+  karma         Int            @default(0)
+  about         String?        @db.Text
+  lastVisitedAt DateTime?
+  noProcrast    NoProcrastType @default(no)
+  maxVisit      Int            @default(20)
+  minAway       Int            @default(180)
+  delay         Int            @default(0)
+
+  comments            Comment[]
+  posts               Post[]
+  postUpvotes         PostUpvote[]
+  postDownvotes       PostDownvote[]
+  commentUpvotes      CommentUpvote[]
+  commentDownvotes    CommentDownvote[]
+  passwordResetTokens PasswordResetToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([username])
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Post {
+  id      String   @id @default(uuid())
+  title   String
+  url     String?
+  content String?
+  type    PostType @default(GENERAL)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  comments  Comment[]
+  upvotes   PostUpvote[]
+  downvotes PostDownvote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id      String @id @default(uuid())
+  content String
+  depth   Int    @default(0)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  parentCommentId String?
+  parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id])
+  childComments   Comment[] @relation("CommentToReplies")
+
+  upvotes   CommentUpvote[]
+  downvotes CommentDownvote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([userId])
+  @@index([parentCommentId])
+  @@index([createdAt])
+}
+
+model PostUpvote {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model CommentUpvote {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, commentId])
+  @@index([commentId])
+  @@index([userId])
+}
+
+model PostDownvote {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model CommentDownvote {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, commentId])
+  @@index([commentId])
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique @db.VarChar(512)
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}

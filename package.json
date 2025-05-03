@@ -6,23 +6,40 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:studio": "prisma studio",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:prod": "prisma migrate deploy",
+    "prisma:migrate:reset": "prisma migrate reset",
+    "prisma:format": "prisma format",
+    "prisma:db:push": "prisma db push",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@conform-to/react": "^1.4.0",
+    "@conform-to/zod": "^1.4.0",
+    "@prisma/client": "^6.7.0",
+    "@sendgrid/mail": "^8.1.5",
+    "@tanstack/react-query": "^5.74.11",
+    "axios": "^1.9.0",
     "clsx": "^2.1.1",
+    "jose": "^6.0.10",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.2.0"
+    "tailwind-merge": "^3.2.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@tanstack/eslint-plugin-query": "^5.74.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "prisma": "^6.7.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

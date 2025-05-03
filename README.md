@@ -9,19 +9,22 @@ A Hacker News-style feed and discussion platform with key features like velocity
 - **Authentication**: NextAuth.js
 - **Database**: PostgreSQL
 - **ORM**: Prisma
+- **Conform + Zod**: Client + Server Validation
+- **JWT**: Authentication & Authorization
+- **bcrypt**: Hashing Password
 
 ---
 
 ## 🚀 Features
 ### 🗞️ Feed  
-- **`/news`** – Posts with high velocity (recent posts getting rapid upvotes)  
+- **`/`** – Posts with high velocity (recent posts getting rapid upvotes) 
 - **`/newest`** – Chronologically sorted feed of newly submitted posts  
-- **`/threads`** – View a user’s comments in threaded (nested) format  
-- **`/past`** – Shows front-page content from previous days  
-- **`/comments`** – Recent comments across all posts  
+- **`/threads?id=username`** – View a user’s comments in threaded (nested) format  
+- **`/past?date=30-04-2025`** – Shows front-page content from previous days  
+- **`/newcomments`** – Recent comments across all posts  
 - **`/ask`** – Posts where users ask questions (title starts with `Ask HN:`)  
 - **`/show`** – Project showcases (title starts with `Show HN:`)  
-- **`/submit`** – Submit a new post to the platform  
+- **`/submit`** – Submit a new post to the platform
 
 ---
 
@@ -59,11 +62,5 @@ A Hacker News-style feed and discussion platform with key features like velocity
 - Users **cannot**:  
   - Upvote their own content  
   - Upvote the same post/comment more than once  
-
----
-
-### 🌓 UX Details  
-- Posts you've read appear in **muted color** (`#828282`)  
-- Unread posts remain in **default black** (`#000000`)  
 
 ---

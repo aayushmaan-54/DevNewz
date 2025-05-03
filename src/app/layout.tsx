@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "./provider";
 
 
 export const metadata: Metadata = {
@@ -48,9 +49,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`antialiased bg-background text-black`}
+        className={`antialiased bg-background text-black text-[10pt] min-h-screen flex flex-col`}
       >
-        {children}
+        <Providers>
+          <main className="flex-grow">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );
