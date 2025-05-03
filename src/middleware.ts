@@ -26,11 +26,6 @@ const PROTECTED_ROUTES = [
   '/api/auth/:path*',
 ];
 
-const ALL_ROUTES = [
-  ...UNAUTHENTICATED_ONLY_ROUTES,
-  ...PROTECTED_ROUTES
-];
-
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
