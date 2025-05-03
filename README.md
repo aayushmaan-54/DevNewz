@@ -4,14 +4,15 @@ A Hacker News-style feed and discussion platform with key features like velocity
 ---
 
 ## 🧱 Tech Stack
-- **Frontend**: Next.js
-- **Backend**: Next.js API Routes & Server Actions
-- **Authentication**: NextAuth.js
-- **Database**: PostgreSQL
-- **ORM**: Prisma
-- **Conform + Zod**: Client + Server Validation
-- **JWT**: Authentication & Authorization
-- **bcrypt**: Hashing Password
+- **Frontend**: Next.js, Tailwind CSS  
+- **Backend**: Next.js API Routes, Server Actions  
+- **Authentication**: NextAuth.js, JWT (via `jose`)  
+- **Database**: PostgreSQL  
+- **ORM**: Prisma  
+- **Validation**: Conform, Zod (Client + Server)  
+- **Emails**: SendGrid  
+- **Data Fetching**: TanStack React Query, Axios  
+- **Security**: Crypto Web API (Hashing & Cryptography)
 
 ---
 
