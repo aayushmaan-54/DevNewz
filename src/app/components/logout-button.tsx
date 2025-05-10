@@ -28,7 +28,12 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await logoutAction();
+      const result = await logoutAction();
+      if (result.success) {
+        // Add a small delay to ensure cookies are deleted
+        await new Promise(resolve => setTimeout(resolve, 100));
+        window.location.href = '/auth';
+      }
     } catch (error) {
       console.error("Logout failed:", error);
       window.location.href = '/auth';
