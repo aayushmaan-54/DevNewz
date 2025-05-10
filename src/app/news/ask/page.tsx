@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { voteAction } from '../actions/vote-action';
 import { useSearchParams } from 'next/navigation';
 import axios from "axios";
+import { Suspense } from "react";
 
 interface News {
   id: string;
@@ -96,96 +97,98 @@ export default function AskPage() {
 
   return (
     <>
-      <Header text="Ask DevNewz" />
-      <main className="belowHeaderContainer">
-        <div className="p-4">
-          {isLoading ? (
-            <div>Loading news...</div>
-          ) : (
-            <div className="space-y-2">
-              {news?.map((news: News, index: number) => (
-                <div key={news.id} className="flex">
-                  <span className="text-muted w-6 text-right mr-1">{index + 1}.</span>
-                  <div className="flex flex-col items-center mr-2 w-6">
-                    <button
-                      onClick={() => handleVote(news.id, 'upvote', news.userKarma)}
-                      className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
-                      disabled={voteMutation.isPending}
-                    >
-                      ▲
-                    </button>
-                    <button
-                      onClick={() => handleVote(news.id, 'downvote', news.userKarma)}
-                      className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
-                      disabled={voteMutation.isPending || news.userKarma < 500}
-                      style={{ display: news.userKarma >= 500 ? 'block' : 'none' }}
-                    >
-                      ▼
-                    </button>
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex items-baseline">
-                      <Link
-                        href={news.url || `/news/${news.id}`}
-                        className="text-sm hover:underline"
-                        target={news.url ? "_blank" : "_self"}
+      <Suspense fallback={<div>Loading...</div>}>
+        <Header text="Ask DevNewz" />
+        <main className="belowHeaderContainer">
+          <div className="p-4">
+            {isLoading ? (
+              <div>Loading news...</div>
+            ) : (
+              <div className="space-y-2">
+                {news?.map((news: News, index: number) => (
+                  <div key={news.id} className="flex">
+                    <span className="text-muted w-6 text-right mr-1">{index + 1}.</span>
+                    <div className="flex flex-col items-center mr-2 w-6">
+                      <button
+                        onClick={() => handleVote(news.id, 'upvote', news.userKarma)}
+                        className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
+                        disabled={voteMutation.isPending}
                       >
-                        {news.title}
-                      </Link>
-                      {news.url && (
-                        <span className="text-xs text-muted ml-1">
-                          ({new URL(news.url).hostname.replace('www.', '')})
-                        </span>
-                      )}
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => handleVote(news.id, 'downvote', news.userKarma)}
+                        className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
+                        disabled={voteMutation.isPending || news.userKarma < 500}
+                        style={{ display: news.userKarma >= 500 ? 'block' : 'none' }}
+                      >
+                        ▼
+                      </button>
                     </div>
-                    <div className="text-xs text-muted">
-                      {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
-                      <Link href={`/news/${news.id}`} className="hover:underline ml-1">
-                        {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
-                      </Link>
+                    <div className="flex flex-col">
+                      <div className="flex items-baseline">
+                        <Link
+                          href={news.url || `/news/${news.id}`}
+                          className="text-sm hover:underline"
+                          target={news.url ? "_blank" : "_self"}
+                        >
+                          {news.title}
+                        </Link>
+                        {news.url && (
+                          <span className="text-xs text-muted ml-1">
+                            ({new URL(news.url).hostname.replace('www.', '')})
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted">
+                        {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
+                        <Link href={`/news/${news.id}`} className="hover:underline ml-1">
+                          {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
-          {!isLoading && (!news || news.length === 0) && (
-            <div className="text-muted mt-4">No ask news found.</div>
-          )}
+            {!isLoading && (!news || news.length === 0) && (
+              <div className="text-muted mt-4">No ask news found.</div>
+            )}
 
-          {/* Pagination Controls */}
-          {pagination && (
-            <div className="flex justify-center items-center space-x-2 p-4">
-              <button
-                onClick={() => {
-                  if (page > 1) {
-                    window.location.href = `/ask?page=${page - 1}`;
-                  }
-                }}
-                disabled={page === 1}
-                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Previous
-              </button>
-              <span className="text-sm">
-                Page {pagination.currentPage} of {pagination.totalPages}
-              </span>
-              <button
-                onClick={() => {
-                  if (news.length > 0 && page < pagination.totalPages) {
-                    window.location.href = `/ask?page=${page + 1}`;
-                  }
-                }}
-                disabled={news.length === 0 || page === pagination.totalPages}
-                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
-      </main>
+            {/* Pagination Controls */}
+            {pagination && (
+              <div className="flex justify-center items-center space-x-2 p-4">
+                <button
+                  onClick={() => {
+                    if (page > 1) {
+                      window.location.href = `/ask?page=${page - 1}`;
+                    }
+                  }}
+                  disabled={page === 1}
+                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <span className="text-sm">
+                  Page {pagination.currentPage} of {pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => {
+                    if (news.length > 0 && page < pagination.totalPages) {
+                      window.location.href = `/ask?page=${page + 1}`;
+                    }
+                  }}
+                  disabled={news.length === 0 || page === pagination.totalPages}
+                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </main>
+      </Suspense>
     </>
   );
 } 
