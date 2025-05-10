@@ -14,12 +14,10 @@ import {
   subYears,
   isAfter,
   isBefore,
-  addMonths,
-  addYears
 } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import { voteAction } from '../actions/vote-action';
-import { Suspense } from "react";
+import { Suspense } from 'react';
 
 interface NewsWithVelocity {
   id: string;
@@ -34,7 +32,7 @@ interface NewsWithVelocity {
   userVote?: 'upvote' | 'downvote' | null;
 }
 
-export default function PastPage() {
+function PastPageContent() {
   const searchParams = useSearchParams();
   const dateParam = searchParams.get('date');
   const pageParam = searchParams.get('page');
@@ -89,37 +87,40 @@ export default function PastPage() {
     onSuccess: (result, variables) => {
       queryClient.setQueryData(['news', 'past', format(currentDate, 'dd/MM/yyyy'), page], (oldData: any) => {
         if (!oldData) return oldData;
-        return oldData.data.map((news: NewsWithVelocity) => {
-          if (news.id === variables.newsId) {
-            const wasUpvoted = news.userVote === 'upvote';
-            const wasDownvoted = news.userVote === 'downvote';
-            const isUpvoting = result.data?.userVote === 'upvote';
-            const isDownvoting = result.data?.userVote === 'downvote';
-            const isRemovingVote = result.data?.userVote === null;
+        return {
+          ...oldData,
+          data: oldData.data.map((news: NewsWithVelocity) => {
+            if (news.id === variables.newsId) {
+              const wasUpvoted = news.userVote === 'upvote';
+              const wasDownvoted = news.userVote === 'downvote';
+              const isUpvoting = result.data?.userVote === 'upvote';
+              const isDownvoting = result.data?.userVote === 'downvote';
+              const isRemovingVote = result.data?.userVote === null;
 
-            let newUpvotes = news.upvotes;
-            let newDownvotes = news.downvotes;
+              let newUpvotes = news.upvotes;
+              let newDownvotes = news.downvotes;
 
-            if (isUpvoting) {
-              newUpvotes = wasDownvoted ? news.upvotes + 1 : (wasUpvoted ? news.upvotes - 1 : news.upvotes + 1);
-              newDownvotes = wasDownvoted ? news.downvotes - 1 : news.downvotes;
-            } else if (isDownvoting) {
-              newUpvotes = wasUpvoted ? news.upvotes - 1 : news.upvotes;
-              newDownvotes = wasUpvoted ? news.downvotes + 1 : (wasDownvoted ? news.downvotes - 1 : news.downvotes + 1);
-            } else if (isRemovingVote) {
-              newUpvotes = wasUpvoted ? news.upvotes - 1 : news.upvotes;
-              newDownvotes = wasDownvoted ? news.downvotes - 1 : news.downvotes;
+              if (isUpvoting) {
+                newUpvotes = wasDownvoted ? news.upvotes + 1 : (wasUpvoted ? news.upvotes - 1 : news.upvotes + 1);
+                newDownvotes = wasDownvoted ? news.downvotes - 1 : news.downvotes;
+              } else if (isDownvoting) {
+                newUpvotes = wasUpvoted ? news.upvotes - 1 : news.upvotes;
+                newDownvotes = wasUpvoted ? news.downvotes + 1 : (wasDownvoted ? news.downvotes - 1 : news.downvotes + 1);
+              } else if (isRemovingVote) {
+                newUpvotes = wasUpvoted ? news.upvotes - 1 : news.upvotes;
+                newDownvotes = wasDownvoted ? news.downvotes - 1 : news.downvotes;
+              }
+
+              return {
+                ...news,
+                userVote: result.data?.userVote,
+                upvotes: newUpvotes,
+                downvotes: newDownvotes
+              };
             }
-
-            return {
-              ...news,
-              userVote: result.data?.userVote,
-              upvotes: newUpvotes,
-              downvotes: newDownvotes
-            };
-          }
-          return news;
-        });
+            return news;
+          })
+        };
       });
     },
   });
@@ -134,128 +135,152 @@ export default function PastPage() {
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Header />
-        <main className="belowHeaderContainer">
-          <div className="p-4">
-            <div className="mb-8 text-sm text-muted">
-              Stories from {format(currentDate, "MMMM d, yyyy")} (UTC)
-              <div>
-                Go back&nbsp;
-                {canGoBackDay ? (
-                  <Link href={`/past?date=${format(prevDay, "dd/MM/yyyy")}`} className="hover:underline">a day</Link>
-                ) : <span className="text-muted">a day</span>}
-                ,&nbsp;
-                {canGoBackMonth ? (
-                  <Link href={`/past?date=${format(prevMonth, "dd/MM/yyyy")}`} className="hover:underline">a month</Link>
-                ) : <span className="text-muted">a month</span>}
-                , or&nbsp;
-                {canGoBackYear ? (
-                  <Link href={`/past?date=${format(prevYear, "dd/MM/yyyy")}`} className="hover:underline">a year</Link>
-                ) : <span className="text-muted">a year</span>}
-                .
-                {canGoForward && (
-                  <div>
-                    &nbsp;Go forward&nbsp;
-                    <Link href={`/past?date=${format(addDays(currentDate, 1), "dd/MM/yyyy")}`} className="hover:underline">a day</Link>
-                    ,&nbsp;
-                    <Link href={`/past?date=${format(addMonths(currentDate, 1), "dd/MM/yyyy")}`} className="hover:underline">a month</Link>
-                    , or&nbsp;
-                    <Link href={`/past?date=${format(addYears(currentDate, 1), "dd/MM/yyyy")}`} className="hover:underline">a year</Link>
-                    .
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div>Loading news...</div>
-            ) : (
-              <div className="space-y-2">
-                {news?.map((news: NewsWithVelocity, index: number) => (
-                  <div key={news.id} className="flex">
-                    <span className="text-muted w-6 text-right mr-1">{index + 1}.</span>
-                    <div className="flex flex-col items-center mr-2 w-6">
-                      <button
-                        onClick={() => handleVote(news.id, 'upvote', news.userKarma)}
-                        className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
-                        disabled={voteMutation.isPending}
-                      >
-                        ▲
-                      </button>
-                      <button
-                        onClick={() => handleVote(news.id, 'downvote', news.userKarma)}
-                        className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
-                        disabled={voteMutation.isPending || news.userKarma < 500}
-                        style={{ display: news.userKarma >= 500 ? 'block' : 'none' }}
-                      >
-                        ▼
-                      </button>
-                    </div>
-                    <div className="flex flex-col">
-                      <div className="flex items-baseline">
-                        <Link
-                          href={news.url || `/news/${news.id}`}
-                          className="text-sm hover:underline"
-                          target={news.url ? "_blank" : "_self"}
-                        >
-                          {news.title}
-                        </Link>
-                        {news.url && (
-                          <span className="text-xs text-muted ml-1">
-                            ({new URL(news.url).hostname.replace('www.', '')})
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted">
-                        {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
-                        <Link href={`/news/${news.id}`} className="hover:underline ml-1">
-                          {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!isLoading && (!news || news.length === 0) && (
-              <div className="text-muted mt-4">No stories for this date.</div>
-            )}
-
-            {/* Pagination Controls */}
-            {pagination && (
-              <div className="flex justify-center items-center space-x-2 p-4">
-                <button
-                  onClick={() => {
-                    if (page > 1) {
-                      window.location.href = `/past?date=${format(currentDate, 'dd/MM/yyyy')}&page=${page - 1}`;
-                    }
-                  }}
-                  disabled={page === 1}
-                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="text-sm">
-                  Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
-                <button
-                  onClick={() => {
-                    if (news.length > 0 && page < pagination.totalPages) {
-                      window.location.href = `/past?date=${format(currentDate, 'dd/MM/yyyy')}&page=${page + 1}`;
-                    }
-                  }}
-                  disabled={news.length === 0 || page === pagination.totalPages}
-                  className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+      <Header text="Past DevNewz" />
+      <main className="belowHeaderContainer">
+        <div className="p-4">
+          {/* Date Navigation */}
+          <div className="flex justify-center items-center space-x-4 mb-4">
+            <button
+              onClick={() => {
+                if (canGoBackDay) {
+                  window.location.href = `/past?date=${format(prevDay, 'dd/MM/yyyy')}`;
+                }
+              }}
+              disabled={!canGoBackDay}
+              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous Day
+            </button>
+            <button
+              onClick={() => {
+                if (canGoBackMonth) {
+                  window.location.href = `/past?date=${format(prevMonth, 'dd/MM/yyyy')}`;
+                }
+              }}
+              disabled={!canGoBackMonth}
+              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous Month
+            </button>
+            <button
+              onClick={() => {
+                if (canGoBackYear) {
+                  window.location.href = `/past?date=${format(prevYear, 'dd/MM/yyyy')}`;
+                }
+              }}
+              disabled={!canGoBackYear}
+              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous Year
+            </button>
+            <button
+              onClick={() => {
+                if (canGoForward) {
+                  window.location.href = `/past?date=${format(addDays(currentDate, 1), 'dd/MM/yyyy')}`;
+                }
+              }}
+              disabled={!canGoForward}
+              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next Day
+            </button>
           </div>
-        </main>
-      </Suspense>
+
+          {isLoading ? (
+            <div>Loading news...</div>
+          ) : (
+            <div className="space-y-2">
+              {news?.map((news: NewsWithVelocity, index: number) => (
+                <div key={news.id} className="flex">
+                  <span className="text-muted w-6 text-right mr-1">{index + 1}.</span>
+                  <div className="flex flex-col items-center mr-2 w-6">
+                    <button
+                      onClick={() => handleVote(news.id, 'upvote', news.userKarma)}
+                      className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
+                      disabled={voteMutation.isPending}
+                    >
+                      ▲
+                    </button>
+                    <button
+                      onClick={() => handleVote(news.id, 'downvote', news.userKarma)}
+                      className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
+                      disabled={voteMutation.isPending || news.userKarma < 500}
+                      style={{ display: news.userKarma >= 500 ? 'block' : 'none' }}
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex items-baseline">
+                      <Link
+                        href={news.url || `/news/${news.id}`}
+                        className="text-sm hover:underline"
+                        target={news.url ? "_blank" : "_self"}
+                      >
+                        {news.title}
+                      </Link>
+                      {news.url && (
+                        <span className="text-xs text-muted ml-1">
+                          ({new URL(news.url).hostname.replace('www.', '')})
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
+                      <Link href={`/news/${news.id}`} className="hover:underline ml-1">
+                        {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && (!news || news.length === 0) && (
+            <div className="text-muted mt-4">No news found for this date.</div>
+          )}
+
+          {/* Pagination Controls */}
+          {pagination && (
+            <div className="flex justify-center items-center space-x-2 p-4">
+              <button
+                onClick={() => {
+                  if (page > 1) {
+                    window.location.href = `/past?date=${format(currentDate, 'dd/MM/yyyy')}&page=${page - 1}`;
+                  }
+                }}
+                disabled={page === 1}
+                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <span className="text-sm">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+              <button
+                onClick={() => {
+                  if (news.length > 0 && page < pagination.totalPages) {
+                    window.location.href = `/past?date=${format(currentDate, 'dd/MM/yyyy')}&page=${page + 1}`;
+                  }
+                }}
+                disabled={news.length === 0 || page === pagination.totalPages}
+                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
     </>
+  );
+}
+
+export default function PastPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PastPageContent />
+    </Suspense>
   );
 } 

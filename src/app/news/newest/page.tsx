@@ -23,7 +23,7 @@ interface NewestNews {
   userVote?: 'upvote' | 'downvote' | null;
 }
 
-export default function NewestNewsPage() {
+function NewestNewsPageContent() {
   const { data: news, isLoading } = useGetNewestNews();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function NewestNewsPage() {
     },
   });
 
-  const handleVote = (newsId: string, voteType: 'upvote' | 'downvote', userKarma: number = 0) => {
+  const handleVote = (newsId: string, voteType: 'upvote' | 'downvote', userKarma: number) => {
     if (voteType === 'downvote' && userKarma < 500) {
       alert('You need at least 500 karma to downvote');
       return;
@@ -87,32 +87,29 @@ export default function NewestNewsPage() {
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Header />
-        <main className="belowHeaderContainer">
-          <div className="space-y-2 p-2">
-            <h1 className="text-xl font-semibold mb-4">Newest News</h1>
-            {isLoading ? (
-              <div>Loading...</div>
-            ) : news && news.length > 0 ? (
-              news.map((item: NewestNews, index: number) => (
-                <div key={item.id} className="flex">
-                  <span className="text-muted w-6 text-right mr-1">
-                    {index + 1}.
-                  </span>
+      <Header text="Newest DevNewz" />
+      <main className="belowHeaderContainer">
+        <div className="p-4">
+          {isLoading ? (
+            <div>Loading news...</div>
+          ) : (
+            <div className="space-y-2">
+              {news?.map((news: NewestNews, index: number) => (
+                <div key={news.id} className="flex">
+                  <span className="text-muted w-6 text-right mr-1">{index + 1}.</span>
                   <div className="flex flex-col items-center mr-2 w-6">
                     <button
-                      onClick={() => handleVote(item.id, 'upvote', item.userKarma || 0)}
-                      className={`${item.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
+                      onClick={() => handleVote(news.id, 'upvote', news.userKarma || 0)}
+                      className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
                       disabled={voteMutation.isPending}
                     >
                       ▲
                     </button>
                     <button
-                      onClick={() => handleVote(item.id, 'downvote', item.userKarma || 0)}
-                      className={`${item.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
-                      disabled={voteMutation.isPending || (item.userKarma || 0) < 500}
-                      style={{ display: (item.userKarma || 0) >= 500 ? 'block' : 'none' }}
+                      onClick={() => handleVote(news.id, 'downvote', news.userKarma || 0)}
+                      className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
+                      disabled={voteMutation.isPending || (news.userKarma || 0) < 500}
+                      style={{ display: (news.userKarma || 0) >= 500 ? 'block' : 'none' }}
                     >
                       ▼
                     </button>
@@ -120,38 +117,43 @@ export default function NewestNewsPage() {
                   <div className="flex flex-col">
                     <div className="flex items-baseline">
                       <Link
-                        href={item.url || `/news/${item.id}`}
+                        href={news.url || `/news/${news.id}`}
                         className="text-sm hover:underline"
-                        target={item.url ? "_blank" : "_self"}
+                        target={news.url ? "_blank" : "_self"}
                       >
-                        {item.title}
+                        {news.title}
                       </Link>
-                      {item.url && (
+                      {news.url && (
                         <span className="text-xs text-muted ml-1">
-                          ({new URL(item.url).hostname.replace('www.', '')})
+                          ({new URL(news.url).hostname.replace('www.', '')})
                         </span>
                       )}
                     </div>
                     <div className="text-xs text-muted">
-                      {item.upvotes - item.downvotes} points by {item.username} {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
-                      {typeof item.commentCount === 'number' && (
-                        <>
-                          {' '}|
-                          <Link href={`/news/${item.id}`} className="hover:underline ml-1">
-                            {item.commentCount} {item.commentCount === 1 ? 'comment' : 'comments'}
-                          </Link>
-                        </>
-                      )}
+                      {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
+                      <Link href={`/news/${news.id}`} className="hover:underline ml-1">
+                        {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
+                      </Link>
                     </div>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div>No news found.</div>
-            )}
-          </div>
-        </main>
-      </Suspense>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && (!news || news.length === 0) && (
+            <div className="text-muted mt-4">No news found.</div>
+          )}
+        </div>
+      </main>
     </>
+  );
+}
+
+export default function NewestNewsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewestNewsPageContent />
+    </Suspense>
   );
 } 

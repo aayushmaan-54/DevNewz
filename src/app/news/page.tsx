@@ -7,7 +7,7 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { voteAction } from "./actions/vote-action";
-import { Suspense } from "react";
+import { Suspense } from 'react';
 
 interface NewsWithVelocity {
   id: string;
@@ -29,8 +29,7 @@ interface PaginationInfo {
   pageSize: number;
 }
 
-
-export default function NewsPage() {
+function NewsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = parseInt(searchParams.get('page') || '1');
@@ -103,12 +102,10 @@ export default function NewsPage() {
     },
   });
 
-
   const calculateVelocity = (news: NewsWithVelocity) => {
     const hoursSinceCreation = (new Date().getTime() - new Date(news.createdAt).getTime()) / (1000 * 60 * 60);
     return (news.upvotes - news.downvotes) / (hoursSinceCreation + 2);
   };
-
 
   const sortedNews = data?.data.sort(
     (a, b) => calculateVelocity(b) - calculateVelocity(a)
@@ -128,89 +125,100 @@ export default function NewsPage() {
     router.push(`/news?page=${newPage}`);
   };
 
-
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Header />
-        <main className="belowHeaderContainer">
+      <Header text="DevNewz" />
+      <main className="belowHeaderContainer">
+        <div className="p-4">
           {isLoading ? (
-            <div>Loading News...</div>
+            <div>Loading news...</div>
           ) : (
-            <>
-              <div className="space-y-2 p-2">
-                {sortedNews?.map((news, index) => (
-                  <div key={news.id} className="flex">
-                    <span className="text-muted w-6 text-right mr-1">
-                      {(currentPage - 1) * 30 + index + 1}.
-                    </span>
-                    <div className="flex flex-col items-center mr-2 w-6">
-                      <button
-                        onClick={() => handleVote(news.id, 'upvote', news.userKarma)}
-                        className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
-                        disabled={voteMutation.isPending}
+            <div className="space-y-2">
+              {sortedNews?.map((news, index) => (
+                <div key={news.id} className="flex">
+                  <span className="text-muted w-6 text-right mr-1">
+                    {(currentPage - 1) * 30 + index + 1}.
+                  </span>
+                  <div className="flex flex-col items-center mr-2 w-6">
+                    <button
+                      onClick={() => handleVote(news.id, 'upvote', news.userKarma)}
+                      className={`${news.userVote === 'upvote' ? 'text-accent font-bold' : 'text-gray-500'} hover:text-orange-500 cursor-pointer`}
+                      disabled={voteMutation.isPending}
+                    >
+                      ▲
+                    </button>
+                    <button
+                      onClick={() => handleVote(news.id, 'downvote', news.userKarma)}
+                      className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
+                      disabled={voteMutation.isPending || !canDownvote(news.userKarma)}
+                      style={{ display: news.userKarma >= 500 ? 'block' : 'none' }}
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <div className="flex flex-col">
+                    <div className="flex items-baseline">
+                      <Link
+                        href={news.url || `/news/${news.id}`}
+                        className="text-sm hover:underline"
+                        target={news.url ? "_blank" : "_self"}
                       >
-                        ▲
-                      </button>
-                      <button
-                        onClick={() => handleVote(news.id, 'downvote', news.userKarma)}
-                        className={`${news.userVote === 'downvote' ? 'text-accent-secondary' : 'text-muted'} hover:text-blue-500`}
-                        disabled={voteMutation.isPending || !canDownvote(news.userKarma)}
-                        style={{ display: news.userKarma >= 500 ? 'block' : 'none' }}
-                      >
-                        ▼
-                      </button>
+                        {news.title}
+                      </Link>
+                      {news.url && (
+                        <span className="text-xs text-muted ml-1">
+                          ({new URL(news.url).hostname.replace('www.', '')})
+                        </span>
+                      )}
                     </div>
-                    <div className="flex flex-col">
-                      <div className="flex items-baseline">
-                        <Link
-                          href={news.url || `/news/${news.id}`}
-                          className="text-sm hover:underline"
-                          target={news.url ? "_blank" : "_self"}
-                        >
-                          {news.title}
-                        </Link>
-                        {news.url && (
-                          <span className="text-xs text-muted ml-1">
-                            ({new URL(news.url).hostname.replace('www.', '')})
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted">
-                        {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
-                        <Link href={`/news/${news.id}`} className="hover:underline ml-1">
-                          {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
-                        </Link>
-                      </div>
+                    <div className="text-xs text-muted">
+                      {news.upvotes - news.downvotes} points by {news.username} {formatDistanceToNow(new Date(news.createdAt), { addSuffix: true })} |
+                      <Link href={`/news/${news.id}`} className="hover:underline ml-1">
+                        {news.commentCount} {news.commentCount === 1 ? 'comment' : 'comments'}
+                      </Link>
                     </div>
                   </div>
-                ))}
-              </div>
-              {data?.pagination && (
-                <div className="flex justify-center items-center space-x-2 p-4">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-sm">
-                    Page {currentPage} of {data.pagination.totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === data.pagination.totalPages}
-                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
                 </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
-        </main>
-      </Suspense>
+
+          {!isLoading && (!data?.data || data.data.length === 0) && (
+            <div className="text-muted mt-4">No news found.</div>
+          )}
+
+          {/* Pagination Controls */}
+          {data?.pagination && (
+            <div className="flex justify-center items-center space-x-2 p-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <span className="text-sm">
+                Page {currentPage} of {data.pagination.totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === data.pagination.totalPages}
+                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
     </>
+  );
+}
+
+export default function NewsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewsPageContent />
+    </Suspense>
   );
 }
