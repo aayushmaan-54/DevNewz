@@ -1,12 +1,12 @@
 # 🔥 DevNewz: Hacker News Clone  
-A Hacker News-style feed and discussion platform with key features like velocity-based ranking, nested comments, karma system, and user profiles with anti-procrastination settings.
+A Hacker News-style feed and discussion platform with key features like velocity-based ranking, nested comments, karma system, and user profiles.
 
 ---
 
 ## 🧱 Tech Stack
 - **Frontend**: Next.js, Tailwind CSS  
 - **Backend**: Next.js API Routes, Server Actions  
-- **Authentication**: NextAuth.js, JWT (via `jose`)  
+- **Authentication**: JWT (via `jose`)  
 - **Database**: PostgreSQL  
 - **ORM**: Prisma  
 - **Validation**: Conform, Zod (Client + Server)  
@@ -18,14 +18,14 @@ A Hacker News-style feed and discussion platform with key features like velocity
 
 ## 🚀 Features
 ### 🗞️ Feed  
-- **`/`** – Posts with high velocity (recent posts getting rapid upvotes) 
-- **`/newest`** – Chronologically sorted feed of newly submitted posts  
-- **`/threads?id=username`** – View a user’s comments in threaded (nested) format  
-- **`/past?date=30-04-2025`** – Shows front-page content from previous days  
-- **`/newcomments`** – Recent comments across all posts  
-- **`/ask`** – Posts where users ask questions (title starts with `Ask HN:`)  
-- **`/show`** – Project showcases (title starts with `Show HN:`)  
-- **`/submit`** – Submit a new post to the platform
+- **`/news`** – Posts with high velocity (recent posts getting rapid upvotes) 
+- **`/news/newest`** – Chronologically sorted feed of newly submitted posts  
+- **`/news/threads`** – View a user’s comments in threaded (nested) format  
+- **`/news/past?date=05/05/2025`** – Shows front-page content from previous days  
+- **`/news/newcomments`** – Recent comments across all posts  
+- **`/news/ask`** – Posts where users ask questions (title starts with `Ask DevNewz: `)  
+- **`/news/show`** – Project showcases (title starts with `Show DevNewz: `)  
+- **`/news/submit`** – Submit a new post to the platform
 
 ---
 
@@ -38,21 +38,17 @@ A Hacker News-style feed and discussion platform with key features like velocity
   - Karma  
   - About section  
   - Email (optional)  
-  - **noProcrast** mode:  
-    - Set `maxVisit`: Maximum time allowed per session  
-    - Set `minAway`: Minimum time required between sessions  
-  - `delay`: Delay before comments become visible to others  
   - Change password  
   - View your:  
     - Submissions  
     - Upvoted posts/comments  
+    - Downvoted posts/comments  
 
 ---
 
 ### 💬 Comments  
 - Nested comments up to **5 levels deep**  
-- Delayed comment visibility (based on user profile `delay`)  
-- `/threads` page to see a user's full comment history in nested format  
+- `/news/threads` page to see a user's full comment history in nested format  
 
 ---
 

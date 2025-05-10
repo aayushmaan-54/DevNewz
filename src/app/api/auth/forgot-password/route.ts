@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { db } from "@/common/lib/db";
 import { sendEmail } from "@/common/lib/send-mail";
 import { generateResetPasswordToken, hashResetPasswordToken } from "@/common/utils/auth";
@@ -8,8 +9,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("WORKING");
-
     const body = await req.json();
     const result = forgotPasswordSchema.safeParse(body);
 
@@ -22,8 +21,6 @@ export async function POST(req: NextRequest) {
 
     const { username } = result.data;
 
-    console.log("WORKING");
-
     const userData = await db.user.findFirst({
       where: { username: { equals: username, mode: "insensitive" } },
       select: { id: true, email: true, username: true },
@@ -35,7 +32,7 @@ export async function POST(req: NextRequest) {
         { status: 200 }
       );
     }
-console.log("WORKING");
+
     if (!userData.email) {
       return NextResponse.json(
         { success: false, message: "No email associated with this account" },
@@ -58,17 +55,14 @@ console.log("WORKING");
         expiresAt,
       },
     });
-    console.log("WORKING");
+
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password/${token}?userId=${userData.id}`;
 
     const res = await sendEmail({
       to: userData.email,
       username: userData.username || username,
       reset_link: resetLink,
-    });
-    console.log("WORKING");
-    console.log("EMAIL RES", res);
-    
+    });    
 
     return NextResponse.json(
       { success: true, message: "If this account exists, a reset email has been sent" },

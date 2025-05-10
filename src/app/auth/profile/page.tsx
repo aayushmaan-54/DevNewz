@@ -16,7 +16,7 @@ export default function ProfilePage() {
 
   const [lastResult, action, isPending] = useActionState(updateProfileAction, null);
 
-  const formKey = data?.data.updatedAt || Date.now();
+  const formKey = data?.data?.updatedAt || Date.now();
 
   useEffect(() => {
     if (lastResult?.status === 'success') {
@@ -50,6 +50,10 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return <p className="ml-4 mt-3">Loading...</p>
+  }
+
+  if (!data?.data) {
+    return <p className="ml-4 mt-3">No profile data found</p>
   }
 
   return (
@@ -124,79 +128,6 @@ export default function ProfilePage() {
             </label>
           </div>
 
-          <div>
-            <label htmlFor="noProcrast" className="inline-block w-24 text-muted">noProcrast</label>
-            <select
-              id="noProcrast"
-              name={fields.noProcrast.name}
-              defaultValue={data.data.noProcrast || fields.noProcrast.initialValue || "no"}
-              disabled={isPending}
-              className="select"
-            >
-              <option value="no">no</option>
-              <option value="yes">yes</option>
-            </select>
-            {fields.noProcrast.errors && (
-              <p className="error-text">
-                {fields.noProcrast.errors}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="maxVisit" className="inline-block w-24 text-muted">maxVisit: </label>
-            <input
-              type="number"
-              name={fields.maxVisit.name}
-              key={fields.maxVisit.key}
-              defaultValue={data.data.maxVisit ?? fields.maxVisit.initialValue ?? ""}
-              disabled={isPending}
-              id="maxVisit"
-              className="input"
-            />
-            {fields.maxVisit.errors && (
-              <p className="error-text">
-                {fields.maxVisit.errors}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="minAway" className="inline-block w-24 text-muted">minAway: </label>
-            <input
-              type="number"
-              name={fields.minAway.name}
-              key={fields.minAway.key}
-              defaultValue={data.data.minAway ?? fields.minAway.initialValue ?? ""}
-              disabled={isPending}
-              id="minAway"
-              className="input"
-            />
-            {fields.minAway.errors && (
-              <p className="error-text">
-                {fields.minAway.errors}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="delay" className="inline-block w-24 text-muted">delay: </label>
-            <input
-              type="number"
-              name={fields.delay.name}
-              key={fields.delay.key}
-              defaultValue={data.data.delay ?? fields.delay.initialValue ?? ""}
-              disabled={isPending}
-              id="delay"
-              className="input"
-            />
-            {fields.delay.errors && (
-              <p className="error-text">
-                {fields.delay.errors}
-              </p>
-            )}
-          </div>
-
           <button
             type="submit"
             className="input w-fit!"
@@ -207,13 +138,13 @@ export default function ProfilePage() {
         </Form>
 
         <div className="flex flex-col gap-1 mt-5 pb-3">
-          <Link href={`/auth/change-password`} className="link-2 w-fit visited:text-muted">change password</Link>
-          <Link href={``} className="link-2 w-fit visited:text-muted">submissions</Link>
-          <Link href={``} className="link-2 w-fit visited:text-muted">comments</Link>
-          <Link href={``} className="link-2 w-fit visited:text-muted">upvote comments</Link>
-          <Link href={``} className="link-2 w-fit visited:text-muted">downvote comments</Link>
-          <Link href={``} className="link-2 w-fit visited:text-muted">upvote post</Link>
-          <Link href={``} className="link-2 w-fit visited:text-muted">downvote post</Link>
+          <Link href={`/auth/change-password`} className="link-2 w-fit visited:text-muted">changePassword</Link>
+          <Link href={`/news/mysubmissions`} className="link-2 w-fit visited:text-muted">submissions</Link>
+          <Link href={`/news/threads`} className="link-2 w-fit visited:text-muted">comments</Link>
+          <Link href={`/threads/upvoted`} className="link-2 w-fit visited:text-muted">upvoteComments</Link>
+          <Link href={`/threads/downvoted`} className="link-2 w-fit visited:text-muted">downvoteComments</Link>
+          <Link href={`/threads/upvotedNews`} className="link-2 w-fit visited:text-muted">upvoteNews</Link>
+          <Link href={`/threads/downvotedNews`} className="link-2 w-fit visited:text-muted">downvoteNews</Link>
         </div>
       </main>
     </>

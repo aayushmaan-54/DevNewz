@@ -64,29 +64,6 @@ export const updateProfileSchema = z.object({
     .min(10, "About section must be at least 10 characters long.")
     .max(300, "About section must be at most 300 characters long.")
     .optional(),
-
-  noProcrast: z.enum(["no", "yes"]).optional(),
-
-  maxVisit: z
-    .number({ invalid_type_error: "Must be a number" })
-    .int()
-    .min(5, "Minimum browsing time should be at least 5 minutes")
-    .max(1440, "Cannot browse more than 24 hours per day")
-    .optional(),
-
-  minAway: z
-    .number({ invalid_type_error: "Must be a number" })
-    .int()
-    .min(5, "Must stay away at least 5 minutes")
-    .max(1440, "Cannot require more than 24 hours of away time")
-    .optional(),
-
-  delay: z
-    .number({ invalid_type_error: "Must be a number" })
-    .int()
-    .min(0, "Delay must be 0 or more")
-    .max(1440, "Cannot delay more than 24 hours")
-    .optional(),
 });
 
 

@@ -13,6 +13,7 @@ export default function Header({
   const { data: headerData, isLoading } = useHeaderData();
   const pathname = usePathname();
 
+  
   const renderUserInfo = () => {
     if (isLoading) return "Loading...";
     if (!headerData?.username) return null;
@@ -29,19 +30,38 @@ export default function Header({
   };
 
   const headerNavData = [
-    { text: "new", link: "/newest" },
-    { text: "threads", link: `/threads?id=${headerData?.username || 'username'}` },
-    { text: "past", link: `/past?date=${new Date().toLocaleDateString('en-GB')}` },
-    { text: "comments", link: "/newcomments" },
-    { text: "ask", link: "/ask" },
-    { text: "show", link: "/show" },
-    { text: "submit", link: "/submit" },
+    { text: "new", link: "/news/newest" },
+    { text: "threads", link: `/news/threads` },
+    { text: "past", link: `/news/past?date=${new Date().toLocaleDateString('en-GB')}` },
+    { text: "comments", link: "/news/newcomments" },
+    { text: "ask", link: "/news/ask" },
+    { text: "show", link: "/news/show" },
+    { text: "submit", link: "/news/submit" },
   ];
 
   const shouldShowNavLinks = pathname.startsWith('/news') ||
     pathname.startsWith('/auth/profile') ||
-    pathname.startsWith('/auth/change-password');
+    pathname.startsWith('/auth/change-password')||
+    pathname.startsWith('/past')||
+    pathname.startsWith('/ask') ||
+    pathname.startsWith('/show') ||
+    pathname.startsWith('/newcomments') ||
+    pathname.startsWith('/threads');
 
+  const isActiveRoute = (link: string) => {
+    if (link === '/news/newest' && pathname === '/news/newest') return true;
+    if (link === '/news/threads' && pathname === '/news/threads') return true;
+    if (link.startsWith('/news/past') && pathname.startsWith('/news/past')) return true;
+    if (link === '/news/newcomments' && pathname === '/news/newcomments') return true;
+    if (link === '/news/ask' && pathname === '/news/ask') return true;
+    if (link === '/news/show' && pathname === '/news/show') return true;
+    if (link === '/news/submit' && pathname === '/news/submit') return true;
+    if (link === '/threads/upvoted' && pathname === '/threads/upvoted') return true;
+    if (link === '/threads/downvoted' && pathname === '/threads/downvoted') return true;
+    if (link === '/threads/upvotedNews' && pathname === '/threads/upvotedNews') return true;
+    if (link === '/threads/downvotedNews' && pathname === '/threads/downvotedNews') return true;
+    return false;
+  };
 
   return (
     <header className="bg-orange-500 px-2 py-1 flex justify-between items-center md:w-[95vw] lg:w-[80vw] mx-auto md:mt-3 mt-0">
@@ -55,7 +75,10 @@ export default function Header({
           <div className="flex flex-wrap">
             {headerNavData.map((link, index) => (
               <span key={link.text}>
-                <Link href={link.link} className="link-2">
+                <Link 
+                  href={link.link} 
+                  className={`link-2 ${isActiveRoute(link.link) ? 'text-white underline' : ''}`}
+                >
                   {link.text}
                 </Link>
                 {index < headerNavData.length - 1 && <span className="mx-1">|</span>}

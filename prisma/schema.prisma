@@ -9,15 +9,10 @@ datasource db {
   directUrl = env("NEONDB_DIRECT_URL")
 }
 
-enum PostType {
+enum NewsType {
   GENERAL
   ASK
   SHOW
-}
-
-enum NoProcrastType {
-  no
-  yes
 }
 
 enum UserRole {
@@ -33,18 +28,13 @@ model User {
   hashedPassword String
   role           UserRole @default(USER)
 
-  karma         Int            @default(0)
-  about         String?        @db.Text
-  lastVisitedAt DateTime?
-  noProcrast    NoProcrastType @default(no)
-  maxVisit      Int            @default(20)
-  minAway       Int            @default(180)
-  delay         Int            @default(0)
+  karma Int     @default(0)
+  about String? @db.Text
 
   comments            Comment[]
-  posts               Post[]
-  postUpvotes         PostUpvote[]
-  postDownvotes       PostDownvote[]
+  news                News[]
+  newsUpvotes         NewsUpvote[]
+  newsDownvotes       NewsDownvote[]
   commentUpvotes      CommentUpvote[]
   commentDownvotes    CommentDownvote[]
   passwordResetTokens PasswordResetToken[]
@@ -57,19 +47,19 @@ model User {
   @@index([createdAt])
 }
 
-model Post {
+model News {
   id      String   @id @default(uuid())
   title   String
   url     String?
   content String?
-  type    PostType @default(GENERAL)
+  type    NewsType @default(GENERAL)
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
   comments  Comment[]
-  upvotes   PostUpvote[]
-  downvotes PostDownvote[]
+  upvotes   NewsUpvote[]
+  downvotes NewsDownvote[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,8 +76,8 @@ model Comment {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  newsId String
+  news   News   @relation(fields: [newsId], references: [id])
 
   parentCommentId String?
   parentComment   Comment?  @relation("CommentToReplies", fields: [parentCommentId], references: [id])
@@ -99,26 +89,26 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([postId])
+  @@index([newsId])
   @@index([userId])
   @@index([parentCommentId])
   @@index([createdAt])
 }
 
-model PostUpvote {
+model NewsUpvote {
   id String @id @default(uuid())
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  newsId String
+  news   News   @relation(fields: [newsId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, postId])
-  @@index([postId])
+  @@unique([userId, newsId])
+  @@index([newsId])
   @@index([userId])
 }
 
@@ -139,20 +129,20 @@ model CommentUpvote {
   @@index([userId])
 }
 
-model PostDownvote {
+model NewsDownvote {
   id String @id @default(uuid())
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  postId String
-  post   Post   @relation(fields: [postId], references: [id])
+  newsId String
+  news   News   @relation(fields: [newsId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, postId])
-  @@index([postId])
+  @@unique([userId, newsId])
+  @@index([newsId])
   @@index([userId])
 }
 

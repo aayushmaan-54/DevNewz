@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { cookies } from 'next/headers';
 import { jwtVerify, SignJWT } from 'jose';
 import { JWTExpired, JWTInvalid } from 'jose/errors';
+import { NextResponse } from 'next/server';
 
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -190,4 +192,47 @@ export const generateRandomCredentials = () => {
     username: generateRandomString(USERNAME_LENGTH),
     password: generateRandomString(PASSWORD_LENGTH)
   };
+}
+
+
+export async function validateUserAuth() {
+  try {
+    const decoded = await decodedAuthToken();
+    const { userId } = decoded as { userId: string };
+    
+    if (!userId) {
+      return {
+        errorResponse: NextResponse.json(
+          {
+            success: false,
+            message: "User doesn't exist. Please login again.",
+            data: null
+          },
+          { status: 401 }
+        )
+      };
+    }
+    
+    return { userId };
+  } catch (error) {
+    return {
+      errorResponse: NextResponse.json(
+        {
+          success: false,
+          message: 'Invalid or expired authentication token',
+          data: null
+        },
+        { status: 401 }
+      )
+    };
+  }
+}
+
+export async function generateToken(payload: any) {
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(secret);
 }

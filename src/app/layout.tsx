@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Providers from "./provider";
+import Provider from "./provider";
 
 
 export const metadata: Metadata = {
@@ -10,14 +10,14 @@ export const metadata: Metadata = {
     template: "DevNewz | %s",
   },
   description:
-    "DevNewz is a Hacker News-style feed and discussion platform with velocity-based ranking, nested comments, karma system, and user profiles with anti-procrastination settings.",
+    "DevNewz is a Hacker News-style feed and discussion platform with velocity-based ranking, nested comments, karma system, and user profiles.",
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
     title: "DevNewz - Hacker News Clone",
     description:
-      "A Hacker News-style platform with features like velocity-based ranking, nested comments, karma system, and anti-procrastination settings for users.",
+      "A Hacker News-style platform with features like velocity-based ranking, nested comments, karma system for users.",
     images: ["/devnewz-og.png"],
   },
   keywords: [
@@ -29,7 +29,6 @@ export const metadata: Metadata = {
     "Nested Comments",
     "Karma System",
     "User Profiles",
-    "Anti-Procrastination",
     "Discussion Platform",
     "Post Submission",
     "Community Platform",
@@ -38,8 +37,6 @@ export const metadata: Metadata = {
     "Post Voting",
   ],
 };
-
-
 
 export default function RootLayout({
   children,
@@ -51,11 +48,11 @@ export default function RootLayout({
       <body
         className={`antialiased bg-background text-black text-[10pt] min-h-screen flex flex-col`}
       >
-        <Providers>
+        <Provider>
           <main className="flex-grow">
             {children}
           </main>
-        </Providers>
+        </Provider>
       </body>
     </html>
   );

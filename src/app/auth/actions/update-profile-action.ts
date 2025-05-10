@@ -22,23 +22,19 @@ export async function updateProfileAction(
     return validationResult.reply();
   }
 
-  const { about, email, noProcrast, maxVisit, minAway, delay } = validationResult.value;
+  const { about, email } = validationResult.value;
 
   try {
     const { userId } = await decodedAuthToken() as any;
 
     const existingUser = await db.user.findUnique({
       where: { id: userId },
-      select: { about: true, email: true, noProcrast: true, maxVisit: true, minAway: true, delay: true }
+      select: { about: true, email: true }
     });
 
     const updateData: Record<string, any> = {};
     if (about !== undefined && about !== existingUser?.about) updateData.about = about;
     if (email !== undefined && email !== existingUser?.email) updateData.email = email;
-    if (noProcrast !== undefined && noProcrast !== existingUser?.noProcrast) updateData.noProcrast = noProcrast;
-    if (maxVisit !== undefined && maxVisit !== existingUser?.maxVisit) updateData.maxVisit = maxVisit;
-    if (minAway !== undefined && minAway !== existingUser?.minAway) updateData.minAway = minAway;
-    if (delay !== undefined && delay !== existingUser?.delay) updateData.delay = delay;
 
     if (Object.keys(updateData).length > 0) {
       const updatedUser = await db.user.update({
